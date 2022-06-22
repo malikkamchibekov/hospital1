@@ -8,6 +8,8 @@ class Patient(models.Model):
     age = models.IntegerField()
     telephone = models.CharField(max_length=30)
     diagnose = models.TextField(blank=True)
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='Doctor', blank=True, null=True)
+    nurse = models.ForeignKey('Nurse', on_delete=models.CASCADE, related_name='Nurse', blank=True, null=True)
 
 
 class Nurse(models.Model):
@@ -15,6 +17,7 @@ class Nurse(models.Model):
     inn_code = models.IntegerField('ИНН', unique=True)
     age = models.IntegerField()
     telephone = models.CharField(max_length=30)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='Patient', blank=True, null=True)
 
 
 class Doctor(models.Model):
@@ -28,6 +31,8 @@ class Doctor(models.Model):
     age = models.IntegerField()
     experience = models.IntegerField()
     telephone = models.CharField(max_length=30)
+    nurse = models.ForeignKey(Nurse, on_delete=models.CASCADE, related_name='NURSE', blank=True, null=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='PATIENT', blank=True, null=True)
 
     def __str__(self):
         return f'{self.full_name}'
@@ -39,6 +44,7 @@ class HeadDoctor(models.Model):
     age = models.IntegerField()
     experience = models.IntegerField()
     telephone = models.CharField(max_length=30)
+    doctor = models.ForeignKey(Doctor, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return f'{self.full_name}'
@@ -66,6 +72,7 @@ class Hospital(models.Model):
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(100.00)]
     )
+    head_doctor = models.OneToOneField(HeadDoctor, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return f'{self.classification_code}, {self.name}'
