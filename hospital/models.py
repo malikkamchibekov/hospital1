@@ -64,7 +64,7 @@ class Hospital(models.Model):
         ('Чуйская обл.', 'Чуйская обл.'),
         ('Ысык-Кол', 'Ысык-Кол')
     ]
-    region = models.CharField(max_length=30, choices=REGION, default='Кыргызстан')
+    region = models.CharField(max_length=30, choices=REGION, default='Бишкек')
     ownership_type = models.BooleanField(default=False)  # False - частная клиника, True - госудаоственная
     max_people = models.DecimalField(
         max_digits=5,
