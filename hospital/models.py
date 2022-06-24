@@ -1,53 +1,7 @@
+import random
+
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-
-class Patient(models.Model):
-    full_name = models.CharField(max_length=100)
-    inn_code = models.IntegerField('ИНН', unique=True)
-    age = models.IntegerField()
-    telephone = models.CharField(max_length=30)
-    diagnose = models.TextField(blank=True)
-    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='Doctor', blank=True, null=True)
-    nurse = models.ForeignKey('Nurse', on_delete=models.CASCADE, related_name='Nurse', blank=True, null=True)
-
-
-class Nurse(models.Model):
-    full_name = models.CharField(max_length=100)
-    inn_code = models.IntegerField('ИНН', unique=True)
-    age = models.IntegerField()
-    telephone = models.CharField(max_length=30)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='Patient', blank=True, null=True)
-
-
-class Doctor(models.Model):
-    OCCUPATION = [
-        ('Хирург', 'Хирург'),
-        ('Терапевт', 'Терапевт'),
-    ]
-    occupation = models.CharField(max_length=20, choices=OCCUPATION)
-    full_name = models.CharField(max_length=100)
-    inn_code = models.IntegerField('ИНН', unique=True)
-    age = models.IntegerField()
-    experience = models.IntegerField()
-    telephone = models.CharField(max_length=30)
-    nurse = models.ForeignKey(Nurse, on_delete=models.CASCADE, related_name='NURSE', blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='PATIENT', blank=True, null=True)
-
-    def __str__(self):
-        return f'{self.full_name}'
-
-
-class HeadDoctor(models.Model):
-    full_name = models.CharField(max_length=100)
-    inn_code = models.IntegerField('ИНН', unique=True)
-    age = models.IntegerField()
-    experience = models.IntegerField()
-    telephone = models.CharField(max_length=30)
-    doctor = models.ForeignKey(Doctor, on_delete=models.DO_NOTHING, blank=True, null=True)
-
-    def __str__(self):
-        return f'{self.full_name}'
 
 
 class Hospital(models.Model):
@@ -72,10 +26,70 @@ class Hospital(models.Model):
         null=True,
         validators=[MinValueValidator(0), MaxValueValidator(100.00)]
     )
-    head_doctor = models.OneToOneField(HeadDoctor, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return f'{self.classification_code}, {self.name}'
 
 
+class HeadDoctor(models.Model):
+    full_name = models.CharField(max_length=100)
+    inn_code = models.IntegerField('ИНН', unique=True)
+    age = models.IntegerField()
+    experience = models.IntegerField()
+    telephone = models.CharField(max_length=30)
+    hospital = models.OneToOneField(Hospital, on_delete=models.CASCADE, related_name='head_doctor', blank=True)
 
+    def __str__(self):
+        return f'{self.full_name}'
+
+
+class Doctor(models.Model):
+    OCCUPATION = [
+        ('Хирург', 'Хирург'),
+        ('Терапевт', 'Терапевт'),
+    ]
+    occupation = models.CharField(max_length=20, choices=OCCUPATION)
+    full_name = models.CharField(max_length=100)
+    inn_code = models.IntegerField('ИНН', unique=True)
+    age = models.IntegerField()
+    experience = models.IntegerField()
+    telephone = models.CharField(max_length=30)
+    head_doctor = models.ForeignKey(HeadDoctor, on_delete=models.CASCADE, related_name='doctor', blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.full_name}'
+
+
+class Nurse(models.Model):
+    full_name = models.CharField(max_length=100)
+    inn_code = models.IntegerField('ИНН', unique=True)
+    age = models.IntegerField()
+    telephone = models.CharField(max_length=30)
+    doctor = models.OneToOneField(Doctor, on_delete=models.CASCADE, related_name='nurse',blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.full_name}'
+
+
+class Patient(models.Model):
+    full_name = models.CharField(max_length=100)
+    inn_code = models.IntegerField('ИНН', unique=True)
+    age = models.IntegerField()
+    telephone = models.CharField(max_length=30)
+    diagnose = models.TextField(blank=True)
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='patient_doctor', blank=True, null=True)
+    nurse = models.ForeignKey(Nurse, on_delete=models.CASCADE, related_name='patient_nurse', blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.full_name}'
+
+
+# string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+#
+#
+# for i in range(0, 14):
+#     patient = Patient.objects.create(full_name=random.choices(string),
+#                                     inn_code=random.randint(100, 99999),
+#                                     age=random.randint(20, 100),
+#                                     telephone=random.randint(100000, 999999999),
+#                                     diagnose=random.choices(string))

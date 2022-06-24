@@ -4,10 +4,32 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from .serializers import *
 from django.contrib.auth.models import User, Group
+from django.db.models import Q
+
+
+def hospital_1(request, pk):
+    hospital = Hospital.objects.get(id__exact=pk)
+    doctor = Doctor.objects.filter()
+    print(doctor)
+    nurse = Nurse.objects.select_related('doctor').get(id=pk)
+    print(nurse)
+    patient = Patient.objects.select_related('doctor').get(id=pk)
+    print(patient)
+    context = {
+        'hospital': hospital,
+        'doctor': doctor,
+        'nurse': nurse,
+        'patient': patient,
+    }
+    return render(request, 'hospital/hospital1.html', context)
 
 
 def index(request):
-    return render(request, 'hospital/index.html')
+    hospitals = Hospital.objects.all()
+    context = {
+        'hospitals': hospitals
+    }
+    return render(request, 'hospital/index.html', context)
 
 
 class UserViewSet(viewsets.ModelViewSet):
